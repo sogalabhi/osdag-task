@@ -71,13 +71,29 @@ const BeamSpliceDesignPage = () => {
     };
 
     // Handle design calculation
-    const handleDesign = () => {
+    const handleDesign = async () => {
         setIsLoading(true);
-        // Simulate API call delay
-        setTimeout(() => {
-            setResults(generateDummyResults(inputs));
+        try {
+            const response = await fetch('http://localhost:8000/api/beam-to-beam/create/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(inputs),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch design output');
+            }
+
+            const data = await response.json();
+            setResults(data);
+        } catch (error) {
+            console.error('Design API error:', error);
+            alert('Design failed. Please check input or server.');
+            setResults(null);
+        } finally {
             setIsLoading(false);
-        }, 1000);
+        }
+
     };
 
     // Handle input changes
